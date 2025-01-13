@@ -1,6 +1,7 @@
 package com.Spring_Batch_app.controller;
 
 import com.Spring_Batch_app.model.Student;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -10,18 +11,29 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+
+
+
 @RestController
-@RequestMapping("/Batch")
-@RequiredArgsConstructor
 public class StudentController {
 
-    private  JobLauncher jobLauncher;
+    private final JobLauncher jobLauncher;
+    private final Job job;
 
-    private  Job job;
+    public StudentController(JobLauncher jobLauncher, Job job) {
+        this.jobLauncher = jobLauncher;
+        this.job = job;
+    }
 
-    @PostMapping(value = "/FirstJob")
+    @PostConstruct
+    public void init() {
+        System.out.println("StudentController cargado correctamente");
+    }
+
+    @PostMapping(value = "FirstJob")
     public void importCSVtoDBJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         JobParameters jobParameters = new JobParametersBuilder().
                 addLong("startAt", System.currentTimeMillis())
@@ -32,11 +44,9 @@ public class StudentController {
 
     }
 
-    @GetMapping(value = "/FirstJobGet")
-    public String prueba() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+    @GetMapping(value = "FirstJobGet")
+    public String prueba() {
         return "funciona";
-
-
     }
 
 }
