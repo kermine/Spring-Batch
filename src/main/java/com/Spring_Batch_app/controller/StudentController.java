@@ -10,10 +10,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/Batch")
@@ -25,12 +22,19 @@ public class StudentController {
     private  Job job;
 
     @PostMapping(value = "/FirstJob")
-    public void importCSVtoDBJob(@RequestBody Student student) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+    public void importCSVtoDBJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         JobParameters jobParameters = new JobParametersBuilder().
                 addLong("startAt", System.currentTimeMillis())
                 .toJobParameters();
 
         jobLauncher.run(job,jobParameters);
+
+
+    }
+
+    @GetMapping(value = "/FirstJobGet")
+    public String prueba() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+        return "funciona";
 
 
     }
