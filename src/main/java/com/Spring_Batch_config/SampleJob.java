@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 
@@ -49,12 +51,20 @@ public class SampleJob {
     }
 
     @Bean
-    public Step importStep(JobRepository jobRepository, StudentProcessor processor, PlatformTransactionManager platformTransactionManager,StudentRepository repository){
+    public TaskExecutor taskExecutor() {
+        SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch_csvtoMySQL");
+        asyncTaskExecutor.setConcurrencyLimit(10);
+        return new SimpleAsyncTaskExecutor("spring_batch_csvtoMySQL");
+    }
+
+    @Bean
+    public Step importStep(TaskExecutor taskExecutor, JobRepository jobRepository, StudentProcessor processor, PlatformTransactionManager platformTransactionManager,StudentRepository repository){
         return new StepBuilder("csvImport",jobRepository)
                 .<Student,Student>chunk(10,platformTransactionManager)
                 .reader(itemReader())
                 .processor(processor)
                 .writer(writer(repository))
+                .taskExecutor(taskExecutor)
                 .build();
     }
 
@@ -64,6 +74,8 @@ public class SampleJob {
                 .start(step1)
                 .build();
     }
+
+
 
     private LineMapper<Student> lineMapper(){
         DefaultLineMapper<Student> lineMapper= new DefaultLineMapper<>();
