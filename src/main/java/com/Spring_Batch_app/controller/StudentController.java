@@ -1,8 +1,6 @@
 package com.Spring_Batch_app.controller;
 
-import com.Spring_Batch_app.model.Student;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -43,10 +41,4 @@ public class StudentController {
 
 
     }
-
-    @GetMapping(value = "FirstJobGet")
-    public String prueba() {
-        return "funciona";
-    }
-
 }

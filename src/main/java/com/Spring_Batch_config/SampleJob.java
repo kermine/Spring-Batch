@@ -35,20 +35,6 @@ public class SampleJob {
         return itemReader;
     }
 
-    private LineMapper<Student> lineMapper(){
-        DefaultLineMapper<Student> lineMapper= new DefaultLineMapper<>();
-        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
-        lineTokenizer.setDelimiter(",");
-        lineTokenizer.setStrict(false); // nos permite que si alguna fila le falta algun campo no la desheche
-        lineTokenizer.setNames("id","firstname","lastname","age");
-
-        BeanWrapperFieldSetMapper<Student> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        fieldSetMapper.setTargetType(Student.class);
-        lineMapper.setLineTokenizer(lineTokenizer);
-        lineMapper.setFieldSetMapper(fieldSetMapper);
-        return lineMapper;
-    }
-
     @Bean
     public StudentProcessor processor(){
         return new StudentProcessor();
@@ -63,18 +49,33 @@ public class SampleJob {
     }
 
     @Bean
-    public Step importStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager,StudentRepository repository){
+    public Step importStep(JobRepository jobRepository, StudentProcessor processor, PlatformTransactionManager platformTransactionManager,StudentRepository repository){
         return new StepBuilder("csvImport",jobRepository)
                 .<Student,Student>chunk(10,platformTransactionManager)
                 .reader(itemReader())
+                .processor(processor)
                 .writer(writer(repository))
                 .build();
     }
 
     @Bean
-    public Job runJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager, StudentRepository studentRepository){
+    public Job runJob(JobRepository jobRepository,Step step1){
         return new JobBuilder("importStudents",jobRepository)
-                .start(importStep(jobRepository,platformTransactionManager,studentRepository))
+                .start(step1)
                 .build();
+    }
+
+    private LineMapper<Student> lineMapper(){
+        DefaultLineMapper<Student> lineMapper= new DefaultLineMapper<>();
+        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
+        lineTokenizer.setDelimiter(",");
+        lineTokenizer.setStrict(false); // nos permite que si alguna fila le falta algun campo no la deseche
+        lineTokenizer.setNames("id","firstname","lastname","age");
+
+        BeanWrapperFieldSetMapper<Student> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+        fieldSetMapper.setTargetType(Student.class);
+        lineMapper.setLineTokenizer(lineTokenizer);
+        lineMapper.setFieldSetMapper(fieldSetMapper);
+        return lineMapper;
     }
 }

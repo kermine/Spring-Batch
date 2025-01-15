@@ -16,7 +16,6 @@ import lombok.Setter;
 public class Student {
 
     @Id
-    @GeneratedValue
     private Integer id;
     private String firstname;
     private String lastname;
